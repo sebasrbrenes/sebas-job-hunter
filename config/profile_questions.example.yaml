@@ -1,0 +1,17 @@
+schema_version: 1
+purpose: Example backlog for evidence questions; answers are not candidate evidence.
+priority_order:
+  - high
+  - medium
+  - low
+groups:
+  - priority: high
+    why_it_matters: Clarifies a common mandatory requirement.
+    questions:
+      - id: example_work_authorization
+        question: Which countries are you currently authorized to work in?
+  - priority: medium
+    why_it_matters: Distinguishes learning from hands-on experience.
+    questions:
+      - id: example_testing_tools
+        question: Which testing tools have you used, and in what context?

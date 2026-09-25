@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sebas-job-hunter"
+version = "0.1.0"
+description = "Local job discovery with interactive Codex scoring"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "python-jobspy==1.1.82",
+  "pydantic>=2.10,<3",
+  "PyYAML>=6.0.2,<7",
+  "requests>=2.32,<3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+job-hunter = "job_hunter.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["job_hunter*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = ["smoke: opt-in live provider checks (requires JOB_HUNTER_LIVE_TESTS=1)"]

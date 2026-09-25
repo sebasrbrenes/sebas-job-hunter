@@ -1,0 +1,89 @@
+schema_version: 1
+companies:
+  - slug: experian
+    company: Experian
+    provider: smartrecruiters
+    enabled: true
+    status: integrated
+    identifier: Experian
+    careers_url: https://jobs.experian.com/jobs
+    notes: Public SmartRecruiters Posting API verified 2026-09-17.
+  - slug: transunion
+    company: TransUnion
+    provider: workday
+    enabled: true
+    status: integrated
+    domain: transunion.wd5.myworkdayjobs.com
+    tenant: transunion
+    site: TransUnion
+    locale: en-US
+    careers_url: https://transunion.wd5.myworkdayjobs.com/en-US/TransUnion
+    notes: Public Workday CXS endpoint verified 2026-09-17.
+  - slug: world-fuel
+    company: World Fuel Services
+    provider: workday
+    enabled: true
+    status: integrated
+    domain: wfscorp.wd5.myworkdayjobs.com
+    tenant: wfscorp
+    site: wfscareers
+    locale: en-US
+    careers_url: https://wfscorp.wd5.myworkdayjobs.com/en-US/wfscareers
+    notes: Public Workday CXS endpoint verified 2026-09-17.
+  - slug: konrad
+    company: Konrad
+    provider: greenhouse
+    enabled: true
+    status: integrated
+    token: konradgroup
+    careers_url: https://www.konrad.com/careers
+    notes: Public Greenhouse Job Board API verified 2026-09-17.
+  - slug: equifax
+    company: Equifax
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://careers.equifax.com/en/locations/costa-rica/
+    notes: Official careers page verified; no stable supported ATS endpoint confirmed.
+  - slug: moodys
+    company: Moody's
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://careers.moodys.com/en/search-jobs
+    notes: Official careers page verified; no stable supported ATS endpoint confirmed.
+  - slug: simspace
+    company: SimSpace
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://simspace.com/careers/
+    notes: Official page currently announces Ashby; obsolete Greenhouse endpoint was not activated.
+  - slug: amazon
+    company: Amazon
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://www.amazon.jobs/en/locations/costa-rica
+    notes: Official custom careers site verified; outside the supported ATS providers.
+  - slug: ibm
+    company: IBM
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://www.ibm.com/careers/search
+    notes: Official custom careers site verified; outside the supported ATS providers.
+  - slug: encora
+    company: Encora
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://careers.encora.com/search
+    notes: Greenhouse job IDs are exposed, but a stable public board token could not be verified.
+  - slug: gorilla-logic
+    company: Gorilla Logic
+    provider: manual
+    enabled: false
+    status: manual_review
+    careers_url: https://gorillalogic.com/careers/open-roles/
+    notes: Official custom openings page verified; public Lever/Greenhouse endpoint not confirmed.

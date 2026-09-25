@@ -1,0 +1,106 @@
+schema_version: 2
+identity:
+  name: Example Candidate
+  country: Costa Rica
+  evidence:
+    status: verified_non_professional
+    basis: personal
+    source: Candidate confirmation
+
+education:
+  - id: example_education
+    institution: Example University
+    program: Example Program
+    status: not_completed
+    degree_awarded: false
+    approximate_years_studied: 2
+    evidence:
+      status: verified_non_professional
+      basis: academic
+      source: Candidate confirmation
+    limitations:
+      - No completed degree is claimed.
+
+professional_experience:
+  - id: example_role
+    employer: Example Employer
+    environment: Operations
+    title: Quality Analyst
+    started: 2025-01-15
+    ended: null
+    evidence:
+      status: verified_professional
+      basis: professional
+      source: Candidate confirmation
+    facts:
+      - id: example_quality_fact
+        statement: Reviewed work quality and documented recurring errors.
+        evidence:
+          status: verified_professional
+          basis: professional
+          source: Candidate confirmation
+        limitations:
+          - This does not establish software-testing experience.
+
+technical_skills:
+  - id: example_python_fundamentals
+    statement: Understands Python fundamentals.
+    evidence:
+      status: verified_non_professional
+      basis: fundamental
+      source: Candidate confirmation
+    evidence_refs: []
+    limitations:
+      - No professional Python usage is claimed.
+
+languages:
+  English:
+    proficiency: Working proficiency
+    evidence:
+      status: verified_non_professional
+      basis: personal
+      source: Candidate confirmation
+    certification_status: unknown
+    certification_details: null
+
+projects: []
+
+learning:
+  - id: example_learning
+    statement: Learning software testing fundamentals.
+    evidence:
+      status: learning
+      basis: learning
+      source: Candidate confirmation
+    evidence_refs: []
+    limitations:
+      - Learning is not professional experience.
+
+transferable_capabilities:
+  - id: example_transferable_quality
+    kind: interpretation
+    statement: Operational quality review may transfer to entry-level QA work.
+    evidence_refs:
+      - example_quality_fact
+    limitation: Transferability does not establish prior software QA duties.
+
+career_preferences:
+  kind: preference_not_experience
+  primary:
+    - Entry-level quality assurance
+  next_step:
+    - Test automation
+  parallel_interest:
+    - Technical support
+  fallback:
+    - Operations quality
+
+unknown_information:
+  professional_python_usage: null
+  software_testing_experience: null
+  work_authorization: null
+
+evidence_rules:
+  - Do not invent experience.
+  - Do not convert learning into professional experience.
+  - Keep unknown information unknown until the candidate confirms it.

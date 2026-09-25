@@ -1,0 +1,71 @@
+role_tiers:
+  tier_1: [QA Analyst, Software QA, QA Engineer, Quality Assurance Engineer, Quality Engineer, Software Test Engineer, Software Tester, Manual QA]
+  tier_2: [QA Automation Engineer, Test Automation Engineer, Automation QA Engineer, Junior SDET, SDET I]
+  tier_3: [SOC Analyst I, Junior SOC Analyst, Security Operations Analyst, Cybersecurity Analyst, Junior Security Analyst]
+  tier_4: [Application Support Analyst, Technical Support Engineer, Technical Support Analyst, Product Support Engineer]
+locations:
+  - Costa Rica
+  - San Jose, Costa Rica
+  - Heredia, Costa Rica
+  - Cartago, Costa Rica
+  - Alajuela, Costa Rica
+  - Remote Costa Rica
+  - Remote LATAM
+  - Remote Latin America
+  - Remote Americas
+prefer:
+  - entry level, junior, associate
+  - roughly 0-3 years of experience
+  - remote or hybrid Costa Rica
+  - technically relevant work
+  - path toward QA Automation or cybersecurity
+allowed_gaps:
+  - 1-2 or 2-3 years of experience
+  - bachelor's degree preferred or required
+  - Selenium
+  - Playwright
+  - API testing
+  - SQL
+  - Jira
+strong_negative_signals:
+  - clearly senior, staff, principal, manager, or director roles
+  - lead roles requiring leadership experience
+  - 5+ years required
+  - unpaid
+  - internship-only roles unless enabled
+search:
+  providers:
+    linkedin: true
+    indeed: true
+    glassdoor: false
+    google: false
+    smartrecruiters: true
+    workday: true
+    greenhouse: true
+    lever: true
+  official_catalog: config/companies.yaml
+  location: Costa Rica
+  additional_locations: ["San Jose, Costa Rica", "Heredia, Costa Rica"]
+  remote_probes: true
+  country_indeed: Costa Rica
+  days_old: 7
+  results_per_query: 15
+  timeout_seconds: 90
+  pause_seconds: 2
+  linkedin_fetch_description: true
+  query_groups:
+    qa: [QA Analyst, QA Engineer, Software Tester]
+    automation: [QA Automation, Test Automation Engineer, SDET]
+    cybersecurity: [SOC Analyst, Cybersecurity Analyst, Information Security Analyst]
+    support: [Application Support Analyst, Technical Support Engineer, Product Support Engineer]
+  # Recognized synonyms for attribution and explicit --query requests; not a
+  # second list to scrape. Representative queries above keep runs bounded.
+  query_aliases:
+    qa: [QA Analyst, Quality Assurance Analyst, QA Engineer, Software QA, Software Tester, QA Tester, Manual QA, Quality Engineer]
+    automation: [QA Automation, QA Automation Engineer, Test Automation Engineer, Automation QA, Software Development Engineer in Test, SDET]
+    cybersecurity: [SOC Analyst, SOC Analyst I, Security Operations Analyst, Cybersecurity Analyst, Security Analyst, Junior Security Analyst, Information Security Analyst]
+    support: [Application Support Analyst, Technical Support Engineer, Technical Support Analyst, Product Support Engineer, Application Support Engineer]
+prefilter:
+  export_limit: 40
+  minimum_score: 25
+  allow_internships: false
