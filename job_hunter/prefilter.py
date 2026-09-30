@@ -12,6 +12,7 @@ from .geography import eligibility
 
 def prefilter(job: Job, preferences: Preferences) -> Job:
     title = normalized_text(job.title)
+    seniority_title = re.split(r"\b(?:reporting to|reports to|working with|work with)\b", title)[0]
     description = normalized_text(job.description)
     if re.search(r"\b(remote|remoto|remota|fully remote|100 remote)\b", description):
         job.work_arrangement = "remote"
@@ -42,7 +43,7 @@ def prefilter(job: Job, preferences: Preferences) -> Job:
             signal(20, "Multiple technical QA/support/security duties despite a different title")
     if re.search(r"\b(junior|jr|associate|entry level)\b", title):
         signal(10, "Junior/associate title")
-    if re.search(r"\b(senior|sr|staff|principal|manager|director)\b", title):
+    if re.search(r"\b(senior|sr|staff|principal|manager|director)\b", seniority_title):
         signal(-35, "Senior/management title")
     if re.search(r"\blead\b", title) and re.search(r"(manag\w*|lead\w*) (a |the )?team|leadership experience", description):
         signal(-30, "Lead title with leadership requirements")
@@ -59,7 +60,8 @@ def prefilter(job: Job, preferences: Preferences) -> Job:
     unrelated = re.search(r"\b(manufacturing|civil|mechanical|chemical|food|pharmaceutical)\b", title)
     if unrelated and not re.search(r"\b(software|application|technical support)\b", title):
         signal(-40, "Quality work in an unrelated discipline")
-    excluded = False
+    excluded = bool(required_years or re.search(r"\b(senior|sr|staff|principal|manager|director)\b", seniority_title)
+                    or (re.search(r"\blead\b", title) and re.search(r"leadership experience|(?:manage|lead) (?:a |the )?team", description)))
     job.geographic_eligibility, job.geographic_reason = eligibility(job.location, job.description)
     if job.geographic_eligibility == "ineligible":
         signal(-100, job.geographic_reason)
@@ -71,10 +73,10 @@ def prefilter(job: Job, preferences: Preferences) -> Job:
         signal(-70, "Internship role (disabled in preferences)")
         excluded = True
     job.prefilter_score = max(0, min(100, score))
-    job.freshness = classify_freshness(job.date_posted)
+    job.freshness = classify_freshness(job.posted_at or job.date_posted)
     # A maximum three-point bonus cannot outweigh large fit/seniority penalties.
-    if freshness_bonus(job.date_posted):
-        signal(freshness_bonus(job.date_posted), "Recent posting")
+    if freshness_bonus(job.posted_at or job.date_posted):
+        signal(freshness_bonus(job.posted_at or job.date_posted), "Recent posting")
         job.prefilter_score = max(0, min(100, score))
     job.prefilter_reasons = reasons
     job.prefilter_excluded = excluded

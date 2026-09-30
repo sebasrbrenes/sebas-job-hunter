@@ -117,7 +117,10 @@ def normalize_greenhouse(item: dict, company: str) -> dict:
     locations = item.get("location") or {}
     return {"id": str(item.get("id", "")), "title": item.get("title"), "company": company,
             "location": locations.get("name") if isinstance(locations, dict) else locations,
-            "description": description_text(item.get("content", "")), "date_posted": item.get("updated_at"),
+            "description": description_text(item.get("content", "")), "date_posted": item.get("first_published"),
+            "date_evidence": [{"type": "original_posted" if item.get("first_published") else "ats_updated",
+                               "value": item.get("first_published") or item.get("updated_at"),
+                               "url": item.get("absolute_url"), "precision": "timestamp"}],
             "job_url": item.get("absolute_url"), "source_kind": "official",
             "is_remote": "remote" in str(locations).casefold(),
             "work_arrangement": "remote" if "remote" in str(locations).casefold() else "unknown"}
@@ -127,6 +130,7 @@ def normalize_lever(item: dict, company: str) -> dict:
     categories = item.get("categories") or {}
     location = categories.get("location") or item.get("workplaceType") or ""
     description = "\n\n".join(filter(None, [description_text(item.get("description", "")),
+                                                *[description_text(section.get("text", "")) + "\n" + description_text(section.get("content", "")) for section in item.get("lists", [])],
                                                 description_text(item.get("additional", ""))]))
     return {"id": str(item.get("id", "")), "title": item.get("text"), "company": company,
             "location": location, "description": description, "job_url": item.get("hostedUrl"),
@@ -175,3 +179,22 @@ class OfficialATSProvider:
     def _lever(self, source: CompanySource, query: str, config: SearchConfig) -> list[dict]:
         data = _json(f"https://api.lever.co/v0/postings/{quote(source.config['site'])}?mode=json", config.timeout_seconds)
         return [row for item in data if _contains_query((row := normalize_lever(item, source.company)), query)]
+
+    def _ashby(self, source: CompanySource, query: str, config: SearchConfig) -> list[dict]:
+        data = _json(f"https://api.ashbyhq.com/posting-api/job-board/{quote(source.config['board'], safe='')}", config.timeout_seconds)
+        return [row for item in data.get("jobs", []) if item.get("isListed", True)
+                and _contains_query((row := normalize_ashby(item, source.company)), query)]
+
+
+def normalize_ashby(item: dict, company: str) -> dict:
+    # publishedAt is LAST publication, not necessarily original publication.
+    locations = [item.get("location")]
+    locations.extend(location.get("location") for location in item.get("secondaryLocations", []))
+    return {"id": str(item.get("id") or str(item.get("jobUrl", "")).rstrip("/").split("/")[-1]),
+            "title": item.get("title"), "company": company, "location": "; ".join(dict.fromkeys(filter(None, locations))),
+            "description": item.get("descriptionPlain") or description_text(item.get("descriptionHtml", "")),
+            "job_url": item.get("jobUrl"), "source_kind": "official", "is_remote": item.get("isRemote"),
+            "work_arrangement": {"Remote": "remote", "Hybrid": "hybrid", "OnSite": "onsite"}.get(item.get("workplaceType"), "unknown"),
+            "job_type": item.get("employmentType"), "date_posted": None,
+            "date_evidence": [{"type": "ats_last_published", "value": item.get("publishedAt"),
+                               "url": item.get("jobUrl"), "precision": "timestamp"}]}

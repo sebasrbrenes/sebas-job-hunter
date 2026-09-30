@@ -36,7 +36,7 @@ def generate_report(db: Database, directory: Path, context: str, all_jobs: bool 
     scored = [j for j in jobs if j.codex_score is not None and j.score_context_hash == context]
     modality_rank = {"remote": 3, "hybrid": 2, "onsite": 1, "unknown": 0}
     career_rank = {"qa": 4, "qa_automation": 3, "cybersecurity": 2, "technical_support": 1, "other": 0}
-    ranked = sorted(scored, key=lambda j: (-j.codex_score, -freshness_bonus(j.date_posted),
+    ranked = sorted(scored, key=lambda j: (-j.codex_score, -freshness_bonus(j.posted_at or j.date_posted),
                     -modality_rank.get(j.work_arrangement, 0), -career_rank.get(str(j.category), 0),
                     -j.prefilter_score, j.title.casefold(), j.id))
     applications = db.applications()
@@ -57,6 +57,8 @@ def generate_report(db: Database, directory: Path, context: str, all_jobs: bool 
                   f"{summary['new'] if summary else 0} new · {len(scored)} analyzed", "",
                   "Recommended: " + " · ".join(f"{value.value}: {sum(j.recommendation == value for j in scored)}" for value in Recommendation if value != Recommendation.SKIP), ""])
     if summary:
+        if any(a.get("stage") == "official_resolution" for a in summary["attempts"]):
+            lines.extend(["Manual ATS discovery coverage: **partial**, limited to explicitly supplied URLs; unresolved candidates remain outside the shortlist.", ""])
         lines.extend([f"Queries executed (provider/query/location calls): {summary['queries_executed']}; providers: {', '.join(summary['providers_queried'])}",
                       f"Provider failures: {summary['provider_failures']}; skipped attempts: {summary['skipped_attempts']}",
                       f"Previously known: {summary['previously_known']}; duplicates removed: {summary['duplicates_removed']}; invalid rows: {summary['invalid_rows']}",
@@ -90,7 +92,10 @@ def generate_report(db: Database, directory: Path, context: str, all_jobs: bool 
                           f"- Work arrangement: {safe_text(job.work_arrangement)}",
                           f"- Geographic eligibility: **{safe_text(job.geographic_eligibility)}** — {safe_text(job.geographic_reason)}",
                           f"- Date posted: {safe_text(job.date_posted)}",
-                          f"- Freshness: {classify_freshness(job.date_posted)}; last seen: {job.last_seen_at.isoformat()}",
+                          f"- Date evidence: {safe_text(job.date_evidence or 'No evidence recorded')}",
+                          f"- Discovery method: {safe_text(', '.join(sorted({p.get('method', 'unknown') for p in job.discovery_provenance})) or 'configured providers')}",
+                          f"- Official resolution: {safe_text(job.resolved_provider)} / {safe_text(job.verification_status)}",
+                          f"- Freshness: {classify_freshness(job.posted_at or job.date_posted)}; last seen: {job.last_seen_at.isoformat()}",
                           f"- Availability: **{job.availability}** (checked {safe_text(job.availability_checked_at)})",
                           f"- Availability evidence: {safe_text(job.availability_reason or 'Not checked')}",
                           f"- Discovery tracks: {safe_text(', '.join(job.discovery_tracks) or 'unknown')}",

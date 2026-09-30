@@ -91,6 +91,8 @@ def normalize_job(row: dict, source: str, query: str) -> Job:
         location=text_value(location) or "Unknown location",
         job_url=url or direct_url, description=description_text(row.get("description")), description_source=actual_source,
         date_posted=posted_date(row.get("date_posted")),
+        posted_at=original_timestamp(row.get("date_posted")),
+        date_evidence=row.get("date_evidence", []),
         salary_min=number(row.get("min_amount")), salary_max=number(row.get("max_amount")),
         salary_currency=text_value(row.get("currency")) or None,
         salary_interval=text_value(row.get("interval")) or None,
@@ -103,3 +105,14 @@ def normalize_job(row: dict, source: str, query: str) -> Job:
         job.source_urls.append(SourceReference(source=actual_source, url=direct_url))
     job.id = stable_id(job)
     return job
+
+
+def original_timestamp(value: Any) -> datetime | None:
+    try:
+        result = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if result.tzinfo is not None:
+            from datetime import timezone
+            return result.astimezone(timezone.utc)
+    except (ValueError, TypeError):
+        pass
+    return None

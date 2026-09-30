@@ -12,6 +12,10 @@ def eligibility(location: str, description: str = "") -> tuple[str, str]:
     # Explicit exclusions/restrictions take precedence over regional marketing.
     if re.search(r"(?:excluding|except|not available in|excluye) costa rica", desc):
         return "ineligible", "Posting explicitly excludes Costa Rica"
+    if re.search(r"\b(?:us|usa|united states) only\b|\bonly (?:in|within) (?:the )?(?:us|usa|united states)\b", desc + " " + loc):
+        return "ineligible", "Explicit US-only restriction"
+    if re.search(r"(?:must|required to) (?:be )?(?:authorized|eligible) to work in (?:the )?(?:united states|us)\b", desc):
+        return "ineligible", "Mandatory US work authorization; Costa Rica eligibility not established"
     for clause in re.split(r"[.\n;]", description.lower()):
         clause = normalized_text(clause)
         if re.search(r"must (?:currently )?(?:reside|live|be (?:located|based))|residency required|residencia obligatoria|debe residir|only candidates (?:based|located)", clause):

@@ -66,6 +66,11 @@ class Job(BaseModel):
     description: str = ""
     description_source: str | None = None
     date_posted: date | None = None
+    posted_at: datetime | None = None
+    date_evidence: list[dict] = Field(default_factory=list)
+    discovery_provenance: list[dict] = Field(default_factory=list)
+    resolved_provider: str | None = None
+    verification_status: str = "not_checked"
     salary_min: float | None = None
     salary_max: float | None = None
     salary_currency: str | None = None

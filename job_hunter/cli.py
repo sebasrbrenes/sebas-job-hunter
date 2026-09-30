@@ -29,6 +29,12 @@ def parser() -> argparse.ArgumentParser:
     app.add_argument("--candidate", type=Path, default=ROOT / "config/candidate.yaml")
     app.add_argument("--preferences", type=Path, default=ROOT / "config/preferences.yaml")
     commands = app.add_subparsers(dest="command", required=True)
+    commands.add_parser("ats-queries", help="Print bounded manual Google queries; no network search")
+    commands.add_parser("migrate-ats-dates", help="Backup SQLite and reclassify legacy Greenhouse update dates")
+    command = commands.add_parser("import-ats-urls", help="Resolve manually discovered ATS URLs into the current run")
+    command.add_argument("--input", type=Path, required=True)
+    command.add_argument("--maximum", type=positive, default=40)
+    command.add_argument("--output", type=Path, default=ROOT / "data/to_score.json")
     for name in ("search", "run-search"):
         command = commands.add_parser(name, help="Search + normalize + deduplicate + prefilter" + (" + export" if name == "run-search" else ""))
         command.add_argument("--source", action="append", help="Repeat for multiple boards; overrides configured sources")
@@ -84,7 +90,17 @@ def main(argv: list[str] | None = None) -> int:
         preferences = load_preferences(args.preferences)
         candidate = load_candidate(args.candidate)
         with Database(args.db) as db:
-            if args.command in {"search", "run-search"}:
+            if args.command == "ats-queries":
+                from .ats_discovery import queries
+                print(json.dumps(queries(preferences), indent=2, ensure_ascii=False))
+            elif args.command == "migrate-ats-dates":
+                print(json.dumps(db.migrate_ats_dates(args.db), indent=2))
+            elif args.command == "import-ats-urls":
+                from .ats_discovery import import_urls
+                result = import_urls(db, preferences, args.input, args.maximum)
+                batch = export_scores(db, candidate, preferences, args.output)
+                print(json.dumps({**result, "exported": len(batch["jobs"])}, indent=2))
+            elif args.command in {"search", "run-search"}:
                 data = preferences.model_dump()
                 for arg, field in [("source", "sources"), ("location", "location"), ("days", "days_old"), ("results", "results_per_query")]:
                     if getattr(args, arg) is not None:

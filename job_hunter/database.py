@@ -75,6 +75,23 @@ class Database:
     def jobs(self) -> list[Job]:
         return [Job.model_validate_json(r[0]) for r in self.connection.execute("SELECT payload FROM jobs")]
 
+    def migrate_ats_dates(self, path: Path) -> dict:
+        affected = [j for j in self.jobs() if j.source.startswith("greenhouse:") and j.date_posted and not j.date_evidence]
+        if not affected:
+            return {"reclassified": 0}
+        backup = Path(str(path) + "." + uuid4().hex + ".backup.sqlite3")
+        with sqlite3.connect(backup) as destination:
+            self.connection.backup(destination)
+        self.connection.execute("CREATE TABLE IF NOT EXISTS date_migrations (job_id TEXT PRIMARY KEY, observed_at TEXT, before_payload TEXT)")
+        with self.connection:
+            for job in affected:
+                self.connection.execute("INSERT OR IGNORE INTO date_migrations VALUES (?,?,?)", (job.id, utcnow().isoformat(), job.model_dump_json()))
+                job.date_evidence = [{"type": "ats_updated", "value": job.date_posted.isoformat(), "url": job.job_url,
+                                      "observed_at": utcnow().isoformat(), "precision": "day", "migration": "legacy_greenhouse_updated_at"}]
+                job.date_posted, job.posted_at, job.freshness = None, None, "unknown"
+                self._save(job)
+        return {"reclassified": len(affected), "backup": str(backup)}
+
     def get(self, job_id: str) -> Job | None:
         row = self.connection.execute("SELECT payload FROM jobs WHERE id=?", (job_id,)).fetchone()
         return Job.model_validate_json(row[0]) if row else None

@@ -182,6 +182,14 @@ def merge_jobs(old: Job, incoming: Job) -> Job:
     refs = [*old.source_urls, *incoming.source_urls]
     merged.source_urls = list({(r.source, r.source_job_id, r.url): r for r in refs}.values())
     merged.search_queries = sorted(set(old.search_queries + incoming.search_queries))
+    for field in ("date_evidence", "discovery_provenance"):
+        combined = getattr(old, field) + getattr(incoming, field)
+        setattr(merged, field, [item for index, item in enumerate(combined) if item not in combined[:index]])
+    if incoming.source_kind == "official":
+        merged.date_posted = incoming.date_posted
+        merged.posted_at = incoming.posted_at
+        merged.resolved_provider = incoming.resolved_provider or old.resolved_provider
+        merged.verification_status = incoming.verification_status
     merged.discovery_tracks = sorted(set(old.discovery_tracks + incoming.discovery_tracks))
     merged.last_seen_at = max(old.last_seen_at, incoming.last_seen_at)
     if content_hash(merged) != content_hash(old) or clean_url(merged.job_url) != clean_url(old.job_url):

@@ -55,6 +55,11 @@ For a faster initial search, say:
 
 ## Commands
 
+Manual ATS URL discovery and the Ashby adapter are documented in
+[docs/ats-discovery.md](docs/ats-discovery.md). Generate manual queries with
+`ats-queries`, import specific postings with `import-ats-urls --input`, and run
+`migrate-ats-dates` to back up and correct legacy Greenhouse update dates.
+
 These examples assume the virtual environment is active:
 
 ```powershell
